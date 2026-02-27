@@ -1,5 +1,3 @@
-//go:build !solution
-
 package main
 
 import (
@@ -79,16 +77,16 @@ func runRoot(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sorter, err := sorter.NewSorter(orderBy)
+	s, err := sorter.NewSorter(orderBy)
 	if err != nil {
 		return err
 	}
-	sorter.Sort(data)
-	formatter, err := formatter.NewFormatter(formatType)
+	s.Sort(data)
+	fmtr, err := formatter.NewFormatter(formatType)
 	if err != nil {
 		return err
 	}
-	result, err := formatter.Format(data)
+	result, err := fmtr.Format(data)
 	if err != nil {
 		return err
 	}

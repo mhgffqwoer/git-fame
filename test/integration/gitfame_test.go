@@ -25,14 +25,14 @@ func TestMain(m *testing.M) {
 		fmt.Fprintf(os.Stderr, "failed to create temp dir: %v", err)
 		os.Exit(1)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer os.RemoveAll(tmpDir) //nolint
 
 	binaryPath = filepath.Join(tmpDir, "gitfame")
 
-	cmd := exec.Command("go", "build", "-o", binaryPath, importPath)
+	cmd := exec.Command("go", "build", "-o", binaryPath, importPath) //nolint
 	if output, err := cmd.CombinedOutput(); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to build gitfame: %v\n%s", err, output)
-		os.Exit(1)
+		os.Exit(1) //nolint
 	}
 
 	os.Exit(m.Run())
@@ -59,8 +59,7 @@ func TestGitFame(t *testing.T) {
 			Unbundle(t, filepath.Join(bundlesDir, tc.Bundle), tempRepoDir)
 			headRef := GetHEADRef(t, tempRepoDir)
 
-			// Запускаем наш собранный бинарник
-			cmd := exec.Command(binaryPath, args...)
+			cmd := exec.Command(binaryPath, args...) //nolint
 			cmd.Stderr = os.Stderr
 
 			output, err := cmd.Output()
@@ -79,10 +78,10 @@ func TestGitFame(t *testing.T) {
 	}
 }
 
-func ListTestDirs(t *testing.T, path string) []string {
+func ListTestDirs(t *testing.T, testPath string) []string {
 	t.Helper()
 
-	files, err := os.ReadDir(path)
+	files, err := os.ReadDir(testPath)
 	require.NoError(t, err)
 
 	var names []string //nolint
@@ -111,12 +110,12 @@ type TestCase struct {
 	Expected []byte
 }
 
-func ReadTestCase(t *testing.T, path string) *TestCase {
+func ReadTestCase(t *testing.T, testPath string) *TestCase {
 	t.Helper()
 
-	desc := ReadTestDescription(t, path)
+	desc := ReadTestDescription(t, testPath)
 
-	expected, err := os.ReadFile(filepath.Join(path, "expected.out")) //nolint
+	expected, err := os.ReadFile(filepath.Join(testPath, "expected.out")) //nolint
 	require.NoError(t, err)
 
 	return &TestCase{TestDescription: desc, Expected: expected}
@@ -130,10 +129,10 @@ type TestDescription struct {
 	Format string   `yaml:"format,omitempty"`
 }
 
-func ReadTestDescription(t *testing.T, path string) *TestDescription {
+func ReadTestDescription(t *testing.T, testPath string) *TestDescription {
 	t.Helper()
 
-	data, err := os.ReadFile(filepath.Join(path, "description.yaml")) //nolint
+	data, err := os.ReadFile(filepath.Join(testPath, "description.yaml")) //nolint
 	require.NoError(t, err)
 
 	var desc TestDescription
@@ -186,11 +185,11 @@ func ParseJSONLines(data []byte) [][]byte {
 	return bytes.Split(bytes.TrimSpace(data), []byte("\n"))
 }
 
-func GetHEADRef(t *testing.T, path string) string {
+func GetHEADRef(t *testing.T, testPath string) string {
 	t.Helper()
 
 	cmd := exec.Command("git", "rev-parse", "HEAD")
-	cmd.Dir = path
+	cmd.Dir = testPath
 
 	out, err := cmd.Output()
 	require.NoError(t, err)
