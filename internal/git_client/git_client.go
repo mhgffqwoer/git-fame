@@ -10,7 +10,7 @@ type GitClient struct {
 	commit  string
 }
 
-func newGitClient(path string, commit string) *GitClient {
+func newGitClient(path, commit string) *GitClient {
 	return &GitClient{
 		absPath: path,
 		commit:  commit,
