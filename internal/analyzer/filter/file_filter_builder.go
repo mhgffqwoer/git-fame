@@ -3,7 +3,7 @@ package filter
 import (
 	"strings"
 
-	"gitlab.com/slon/shad-go/gitfame/configs"
+	"github.com/mhgffqwoer/git-fame/configs"
 )
 
 type FileFilterBuilder struct {
@@ -20,7 +20,7 @@ func (f *FileFilterBuilder) WithExtensions(patterns string) *FileFilterBuilder {
 	if f.err != nil {
 		return f
 	}
-	patterns = strings.ReplaceAll(patterns, "'", "", )
+	patterns = strings.ReplaceAll(patterns, "'", "")
 	list := strings.SplitSeq(patterns, ",")
 	for pattern := range list {
 		if pattern == "" {
@@ -57,7 +57,7 @@ func (f *FileFilterBuilder) WithExcludes(patterns string) *FileFilterBuilder {
 	if f.err != nil {
 		return f
 	}
-	patterns = strings.ReplaceAll(patterns, "'", "", )
+	patterns = strings.ReplaceAll(patterns, "'", "")
 	list := strings.SplitSeq(patterns, ",")
 	for pattern := range list {
 		if pattern == "" {
@@ -72,7 +72,7 @@ func (f *FileFilterBuilder) WithRestrictTo(patterns string) *FileFilterBuilder {
 	if f.err != nil {
 		return f
 	}
-	patterns = strings.ReplaceAll(patterns, "'", "", )
+	patterns = strings.ReplaceAll(patterns, "'", "")
 	list := strings.SplitSeq(patterns, ",")
 	for pattern := range list {
 		if pattern == "" {

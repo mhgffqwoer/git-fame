@@ -1,7 +1,7 @@
 package filter
 
 import (
-	entity "gitlab.com/slon/shad-go/gitfame/internal/analyzer/entities"
+	entity "github.com/mhgffqwoer/git-fame/internal/analyzer/entities"
 )
 
 type FileFilter struct {

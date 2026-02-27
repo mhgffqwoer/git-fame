@@ -3,7 +3,7 @@ package filter
 import (
 	"path/filepath"
 
-	entity "gitlab.com/slon/shad-go/gitfame/internal/analyzer/entities"
+	entity "github.com/mhgffqwoer/git-fame/internal/analyzer/entities"
 )
 
 type pattern string

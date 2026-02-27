@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sort"
 
-	"gitlab.com/slon/shad-go/gitfame/internal/metrics"
-	"gitlab.com/slon/shad-go/gitfame/internal/output/sorter/sort_types"
+	"github.com/mhgffqwoer/git-fame/internal/metrics"
+	"github.com/mhgffqwoer/git-fame/internal/output/sorter/sort_types"
 )
 
 type SortType interface {

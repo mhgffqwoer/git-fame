@@ -8,14 +8,14 @@ import (
 	"fmt"
 	"os"
 
+	analysis_app "github.com/mhgffqwoer/git-fame/internal/analyzer"
+	"github.com/mhgffqwoer/git-fame/internal/analyzer/filter"
+	git_adapters "github.com/mhgffqwoer/git-fame/internal/analyzer/git_adapters"
+	"github.com/mhgffqwoer/git-fame/internal/analyzer/storage"
+	git_client "github.com/mhgffqwoer/git-fame/internal/git_client"
+	formatter "github.com/mhgffqwoer/git-fame/internal/output/formatter"
+	"github.com/mhgffqwoer/git-fame/internal/output/sorter"
 	"github.com/spf13/cobra"
-	analysis_app "gitlab.com/slon/shad-go/gitfame/internal/analyzer"
-	"gitlab.com/slon/shad-go/gitfame/internal/analyzer/filter"
-	git_adapters "gitlab.com/slon/shad-go/gitfame/internal/analyzer/git_adapters"
-	"gitlab.com/slon/shad-go/gitfame/internal/analyzer/storage"
-	git_client "gitlab.com/slon/shad-go/gitfame/internal/git_client"
-	formatter "gitlab.com/slon/shad-go/gitfame/internal/output/formatter"
-	"gitlab.com/slon/shad-go/gitfame/internal/output/sorter"
 )
 
 func main() {

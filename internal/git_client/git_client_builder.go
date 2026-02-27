@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 
-	"gitlab.com/slon/shad-go/gitfame/internal/shared"
+	"github.com/mhgffqwoer/git-fame/internal/shared"
 )
 
 type PathSetter interface {

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sync"
 
-	entity "gitlab.com/slon/shad-go/gitfame/internal/analyzer/entities"
-	metrics "gitlab.com/slon/shad-go/gitfame/internal/metrics"
+	entity "github.com/mhgffqwoer/git-fame/internal/analyzer/entities"
+	metrics "github.com/mhgffqwoer/git-fame/internal/metrics"
 )
 
 type FileStreamer interface {

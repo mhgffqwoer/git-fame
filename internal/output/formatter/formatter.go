@@ -3,8 +3,8 @@ package formatter
 import (
 	"fmt"
 
-	metrics "gitlab.com/slon/shad-go/gitfame/internal/metrics"
-	format_types "gitlab.com/slon/shad-go/gitfame/internal/output/formatter/format_types"
+	metrics "github.com/mhgffqwoer/git-fame/internal/metrics"
+	format_types "github.com/mhgffqwoer/git-fame/internal/output/formatter/format_types"
 )
 
 type FormatType interface {

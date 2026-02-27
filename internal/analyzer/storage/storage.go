@@ -3,8 +3,8 @@ package storage
 import (
 	"sync"
 
-	entity "gitlab.com/slon/shad-go/gitfame/internal/analyzer/entities"
-	"gitlab.com/slon/shad-go/gitfame/internal/metrics"
+	entity "github.com/mhgffqwoer/git-fame/internal/analyzer/entities"
+	"github.com/mhgffqwoer/git-fame/internal/metrics"
 )
 
 type Storage struct {

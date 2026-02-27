@@ -1,6 +1,6 @@
 package sort_types
 
-import "gitlab.com/slon/shad-go/gitfame/internal/metrics"
+import "github.com/mhgffqwoer/git-fame/internal/metrics"
 
 type LinesSortType struct{}
 

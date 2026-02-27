@@ -5,7 +5,7 @@ import (
 	"encoding/csv"
 	"strconv"
 
-	metrics "gitlab.com/slon/shad-go/gitfame/internal/metrics"
+	metrics "github.com/mhgffqwoer/git-fame/internal/metrics"
 )
 
 type CSVFormatType struct{}

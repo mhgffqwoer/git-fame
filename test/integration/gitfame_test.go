@@ -2,6 +2,7 @@ package integration
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path"
@@ -12,27 +13,33 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
-
-	"gitlab.com/slon/shad-go/tools/testtool"
 )
 
-const importPath = "gitlab.com/slon/shad-go/gitfame/cmd/gitfame"
+const importPath = "github.com/mhgffqwoer/git-fame/cmd/git-fame"
 
-var binCache testtool.BinCache
+var binaryPath string
 
 func TestMain(m *testing.M) {
-	os.Exit(func() int {
-		var teardown testtool.CloseFunc
-		binCache, teardown = testtool.NewBinCache()
-		defer teardown()
+	tmpDir, err := os.MkdirTemp("", "gitfame-bin-")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to create temp dir: %v", err)
+		os.Exit(1)
+	}
+	defer os.RemoveAll(tmpDir)
 
-		return m.Run()
-	}())
+	binaryPath = filepath.Join(tmpDir, "gitfame")
+
+	cmd := exec.Command("go", "build", "-o", binaryPath, importPath)
+	if output, err := cmd.CombinedOutput(); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to build gitfame: %v\n%s", err, output)
+		os.Exit(1)
+	}
+
+	os.Exit(m.Run())
 }
 
 func TestGitFame(t *testing.T) {
-	binary, err := binCache.GetBinary(importPath)
-	require.NoError(t, err)
+	require.NotEmpty(t, binaryPath, "binary path should not be empty")
 
 	bundlesDir := path.Join("./testdata", "bundles")
 	testsDir := path.Join("./testdata", "tests")
@@ -42,17 +49,18 @@ func TestGitFame(t *testing.T) {
 		tc := ReadTestCase(t, filepath.Join(testsDir, dir))
 
 		t.Run(dir+"/"+tc.Name, func(t *testing.T) {
-			dir, err := os.MkdirTemp("", "gitfame-")
+			tempRepoDir, err := os.MkdirTemp("", "gitfame-repo-")
 			require.NoError(t, err)
-			defer func() { _ = os.RemoveAll(dir) }()
+			defer func() { _ = os.RemoveAll(tempRepoDir) }()
 
-			args := []string{"--repository", dir}
+			args := []string{"--repository", tempRepoDir}
 			args = append(args, tc.Args...)
 
-			Unbundle(t, filepath.Join(bundlesDir, tc.Bundle), dir)
-			headRef := GetHEADRef(t, dir)
+			Unbundle(t, filepath.Join(bundlesDir, tc.Bundle), tempRepoDir)
+			headRef := GetHEADRef(t, tempRepoDir)
 
-			cmd := exec.Command(binary, args...) //nolint
+			// Запускаем наш собранный бинарник
+			cmd := exec.Command(binaryPath, args...)
 			cmd.Stderr = os.Stderr
 
 			output, err := cmd.Output()
@@ -65,7 +73,7 @@ func TestGitFame(t *testing.T) {
 				require.True(t, ok)
 			}
 
-			newHEADRef := GetHEADRef(t, dir)
+			newHEADRef := GetHEADRef(t, tempRepoDir)
 			require.Equal(t, headRef, newHEADRef)
 		})
 	}
