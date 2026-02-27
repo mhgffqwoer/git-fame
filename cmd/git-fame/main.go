@@ -18,21 +18,21 @@ import (
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "gitfame",
-		Short: "gitfame — анализ статистики авторов git-репозитория",
-		Long:  `GitFame показывает, кто сколько строк кода написал в репозитории.`,
+		Use:   "git-fame",
+		Short: "git-fame — git repository authorship statistics tool",
+		Long:  `Git-Fame calculates and displays authorship statistics for a given git repository.`,
 		RunE:  runRoot,
 	}
 
-	rootCmd.Flags().String("repository", ".", "Путь до Git-репозитория (по умолчанию текущая директория)")
-	rootCmd.Flags().String("revision", "HEAD", "Указатель на коммит (по умолчанию HEAD)")
-	rootCmd.Flags().String("order-by", "lines", "Порядок сортировки (lines|files|commits)")
-	rootCmd.Flags().Bool("use-committer", false, "Использовать committer вместо author")
-	rootCmd.Flags().String("format", "tabular", "Формат вывода (tabular|json|csv|json-lines)")
-	rootCmd.Flags().String("extensions", "", "список расширений, сужающий список файлов в расчёте (например '.go,.md')")
-	rootCmd.Flags().String("languages", "", "список языков, сужающий список файлов в расчёте (например 'go,markdown')")
-	rootCmd.Flags().String("exclude", "", "набор Glob паттернов, исключающих файлы из расчёта (например 'foo/*,bar/*')")
-	rootCmd.Flags().String("restrict-to", "", "набор Glob паттернов, исключающий все файлы, не удовлетворяющие ни одному из паттернов набора")
+	rootCmd.Flags().String("repository", ".", "path to the git repository (default is current directory)")
+	rootCmd.Flags().String("revision", "HEAD", "revision pointer (default is HEAD)")
+	rootCmd.Flags().String("order-by", "lines", "sort order (lines|files|commits)")
+	rootCmd.Flags().Bool("use-committer", false, "use committer instead of author")
+	rootCmd.Flags().String("format", "tabular", "output format (tabular|json|csv|json-lines)")
+	rootCmd.Flags().String("extensions", "", "comma-separated list of extensions to include (e.g., '.go,.md')")
+	rootCmd.Flags().String("languages", "", "comma-separated list of languages to include (e.g., 'go,markdown')")
+	rootCmd.Flags().String("exclude", "", "set of glob patterns to exclude files (e.g., 'foo/*,bar/*')")
+	rootCmd.Flags().String("restrict-to", "", "set of glob patterns; exclude all files that do not match at least one pattern")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprint(os.Stderr, err)

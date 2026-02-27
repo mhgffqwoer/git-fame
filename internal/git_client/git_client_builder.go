@@ -56,10 +56,10 @@ func ensureGitRepository(absPath string) error {
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("директория %q не является git-репозиторием: %w", absPath, err)
+		return fmt.Errorf("directory %q is not a git repository: %w", absPath, err)
 	}
 	if out.String() != "true\n" {
-		return fmt.Errorf("директория %q не является git-репозиторием", absPath)
+		return fmt.Errorf("directory %q is not a git repository", absPath)
 	}
 	return nil
 }
