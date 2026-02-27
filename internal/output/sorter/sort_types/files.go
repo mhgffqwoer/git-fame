@@ -1,0 +1,22 @@
+package sort_types
+
+import "gitlab.com/slon/shad-go/gitfame/internal/metrics"
+
+type FilesSortType struct{}
+
+func NewFilesSortType() *FilesSortType {
+	return &FilesSortType{}
+}
+
+func (s *FilesSortType) Compare(a, b *metrics.Data) bool {
+	if a.FilesCount() != b.FilesCount() {
+		return a.FilesCount() > b.FilesCount()
+	}
+	if a.LinesCount() != b.LinesCount() {
+		return a.LinesCount() > b.LinesCount()
+	}
+	if a.CommitsCount() != b.CommitsCount() {
+		return a.CommitsCount() > b.CommitsCount()
+	}
+	return a.Name() < b.Name()
+}
