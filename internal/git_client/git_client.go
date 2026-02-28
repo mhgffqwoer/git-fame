@@ -18,17 +18,19 @@ func newGitClient(path, commit string) *GitClient {
 }
 
 func (g *GitClient) ListFiles() ([]byte, error) {
+	checkCmd := exec.Command("git", "rev-parse", "--verify", "HEAD")
+	checkCmd.Dir = g.absPath
+	if err := checkCmd.Run(); err != nil {
+		if g.commit == "HEAD" {
+			return []byte{}, nil
+		}
+	}
+
 	cmd := exec.Command("git", "ls-tree", "-r", "--name-only")
 	cmd.Args = append(cmd.Args, g.commit)
 	cmd.Dir = g.absPath
-	out, err := cmd.Output()
-	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 128 {
-			return []byte{}, nil
-		}
-		return nil, err
-	}
-	return out, nil
+
+	return cmd.Output()
 }
 
 func (g *GitClient) FileHistory(path string) ([]byte, error) {
