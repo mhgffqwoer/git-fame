@@ -42,12 +42,11 @@ func NewAnalyzer(fileStreamer FileStreamer, blameReader FileHistoryStreamer, fil
 	}
 }
 
-func (a *Analyzer) runFileStreamer(ctx context.Context) (<-chan *entity.File, <-chan error) {
-	fileCh, errCh := a.fileStreamer.StreamFiles(ctx)
-	return fileCh, errCh
+func (a *Analyzer) runFileStreamer(ctx context.Context) (files <-chan *entity.File, errs <-chan error) {
+	return a.fileStreamer.StreamFiles(ctx)
 }
 
-func (a *Analyzer) runBlameReader(ctx context.Context, fileCh <-chan *entity.File) (<-chan *entity.History, <-chan error) {
+func (a *Analyzer) runBlameReader(ctx context.Context, fileCh <-chan *entity.File) (histories <-chan *entity.History, errs <-chan error) {
 	lineCh := make(chan *entity.History)
 	errCh := make(chan error, 1)
 	var wg sync.WaitGroup
@@ -111,7 +110,7 @@ func (a *Analyzer) saveInfos(ctx context.Context, blameLine <-chan *entity.Histo
 	return done
 }
 
-func (a *Analyzer) runFileFilter(ctx context.Context, fileCh <-chan *entity.File) (<-chan *entity.File, <-chan error) {
+func (a *Analyzer) runFileFilter(ctx context.Context, fileCh <-chan *entity.File) (files <-chan *entity.File, errs <-chan error) {
 	fileChOut := make(chan *entity.File)
 	errCh := make(chan error, 1)
 	go func() {

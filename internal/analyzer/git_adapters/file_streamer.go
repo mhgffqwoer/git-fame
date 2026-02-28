@@ -19,7 +19,7 @@ func NewFileStreamer(client FileListerClient) *FileStreamer {
 	return &FileStreamer{client: client}
 }
 
-func (f *FileStreamer) StreamFiles(ctx context.Context) (<-chan *entity.File, <-chan error) {
+func (f *FileStreamer) StreamFiles(ctx context.Context) (files <-chan *entity.File, errs <-chan error) {
 	fileCh := make(chan *entity.File)
 	errCh := make(chan error, 1)
 

@@ -53,7 +53,7 @@ func TestGitFame(t *testing.T) {
 			require.NoError(t, err)
 			defer func() { _ = os.RemoveAll(tempRepoDir) }()
 
-			args := []string{"--repository", tempRepoDir}
+			args := []string{"--repository", tempRepoDir} //nolint
 			args = append(args, tc.Args...)
 
 			Unbundle(t, filepath.Join(bundlesDir, tc.Bundle), tempRepoDir)
@@ -144,7 +144,7 @@ func ReadTestDescription(t *testing.T, testPath string) *TestDescription {
 func Unbundle(t *testing.T, src, dst string) {
 	t.Helper()
 
-	cmd := exec.Command("git", "clone", src, dst)
+	cmd := exec.Command("git", "clone", src, dst) //nolint
 	require.NoError(t, cmd.Run())
 }
 

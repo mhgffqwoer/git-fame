@@ -25,15 +25,20 @@ func ToAbsolutePath(path string) (string, error) {
 }
 
 func SplitIntoBlocks(lines []string, blockSize int) [][]string {
-	var blocks [][]string
-
+	if len(lines) == 0 {
+		return nil
+	}
+	count := (len(lines) + blockSize - 1) / blockSize
+	blocks := make([][]string, 0, count)
 	for i := 0; i < len(lines); i += blockSize {
 		end := min(i+blockSize, len(lines))
 		block := lines[i:end]
 
 		blocks = append(blocks, block)
 	}
-
+	if len(blocks) == 0 {
+		return blocks
+	}
 	return blocks[:len(blocks)-1]
 }
 

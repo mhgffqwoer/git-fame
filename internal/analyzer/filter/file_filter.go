@@ -9,7 +9,7 @@ type FileFilter struct {
 	excludePatterns []pattern
 }
 
-func newFileFilter(includePatterns []pattern, excludePatterns []pattern) *FileFilter {
+func newFileFilter(includePatterns, excludePatterns []pattern) *FileFilter {
 	return &FileFilter{
 		includePatterns: includePatterns,
 		excludePatterns: excludePatterns,
