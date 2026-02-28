@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"testing"
@@ -19,6 +19,11 @@ const importPath = "github.com/mhgffqwoer/git-fame/cmd/git-fame"
 
 var binaryPath string
 
+func getRootPath() string {
+	_, b, _, _ := runtime.Caller(0)
+	return filepath.Dir(b)
+}
+
 func TestMain(m *testing.M) {
 	tmpDir, err := os.MkdirTemp("", "gitfame-bin-")
 	if err != nil {
@@ -28,6 +33,11 @@ func TestMain(m *testing.M) {
 	defer os.RemoveAll(tmpDir) //nolint
 
 	binaryPath = filepath.Join(tmpDir, "gitfame")
+
+	// На Windows добавим расширение .exe
+	if runtime.GOOS == "windows" {
+		binaryPath += ".exe"
+	}
 
 	cmd := exec.Command("go", "build", "-o", binaryPath, importPath) //nolint
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -41,8 +51,10 @@ func TestMain(m *testing.M) {
 func TestGitFame(t *testing.T) {
 	require.NotEmpty(t, binaryPath, "binary path should not be empty")
 
-	bundlesDir := path.Join("./testdata", "bundles")
-	testsDir := path.Join("./testdata", "tests")
+	basePath := getRootPath()
+	bundlesDir := filepath.Join(basePath, "testdata", "bundles")
+	testsDir := filepath.Join(basePath, "testdata", "tests")
+
 	testDirs := ListTestDirs(t, testsDir)
 
 	for _, dir := range testDirs {
