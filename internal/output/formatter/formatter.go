@@ -7,14 +7,17 @@ import (
 	format_types "github.com/mhgffqwoer/git-fame/internal/output/formatter/format_types"
 )
 
+// FormatType defines the interface for rendering formatted output.
 type FormatType interface {
 	Render(data []*metrics.Data) (string, error)
 }
 
+// Formatter represents a formatter for rendering formatted output.
 type Formatter struct {
-	formatter FormatType
+	formatter FormatType // The specific format type used for rendering (e.g., tabular, CSV, JSON).
 }
 
+// NewFormatter creates a new Formatter instance based on the provided formatType.
 func NewFormatter(formatType string) (*Formatter, error) {
 	switch formatType {
 	case "tabular":
@@ -38,6 +41,7 @@ func NewFormatter(formatType string) (*Formatter, error) {
 	}
 }
 
+// Format renders the formatted output based on the provided data.
 func (f *Formatter) Format(data []*metrics.Data) (string, error) {
 	return f.formatter.Render(data)
 }

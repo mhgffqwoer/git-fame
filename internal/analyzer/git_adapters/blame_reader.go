@@ -8,16 +8,19 @@ import (
 	"github.com/mhgffqwoer/git-fame/internal/shared"
 )
 
+// HistoryReaderClient defines required git operations for blame and metadata retrieval.
 type HistoryReaderClient interface {
 	FileHistory(path string) ([]byte, error)
 	FileLastInfo(path string) ([]byte, error)
 }
 
+// FileHistoryStreamer handles the retrieval and parsing of file authorship history.
 type FileHistoryStreamer struct {
 	client    HistoryReaderClient
 	committer bool
 }
 
+// NewFileHistoryStreamer creates a new streamer for file history.
 func NewFileHistoryStreamer(client HistoryReaderClient, committer bool) *FileHistoryStreamer {
 	return &FileHistoryStreamer{
 		client:    client,
@@ -25,6 +28,7 @@ func NewFileHistoryStreamer(client HistoryReaderClient, committer bool) *FileHis
 	}
 }
 
+// StreamHistory retrieves blame data for a file and streams individual history records.
 func (b *FileHistoryStreamer) StreamHistory(ctx context.Context, file *entity.File) (histories <-chan *entity.History, errs <-chan error) {
 	lineCh := make(chan *entity.History)
 	errCh := make(chan error, 1)
@@ -50,6 +54,7 @@ func (b *FileHistoryStreamer) StreamHistory(ctx context.Context, file *entity.Fi
 	return lineCh, errCh
 }
 
+// handleEmptyHistory handles the case where a file has no history.
 func (b *FileHistoryStreamer) handleEmptyHistory(ctx context.Context, file *entity.File, lineCh chan<- *entity.History, errCh chan<- error) {
 	lastInfo, err := b.client.FileLastInfo(file.Path)
 	if err != nil {
@@ -73,6 +78,7 @@ func (b *FileHistoryStreamer) handleEmptyHistory(ctx context.Context, file *enti
 	}
 }
 
+// processHistoryData processes blame data and streams individual history records.
 func (b *FileHistoryStreamer) processHistoryData(ctx context.Context, file *entity.File, data []byte, lineCh chan<- *entity.History, errCh chan<- error) {
 	lines := strings.Split(string(data), "\n")
 	lines = shared.RemoveLinesStartingWith(lines,
@@ -93,6 +99,7 @@ func (b *FileHistoryStreamer) processHistoryData(ctx context.Context, file *enti
 	}
 }
 
+// parseHistoryBlock parses a blame block and returns a history record.
 func (b *FileHistoryStreamer) parseHistoryBlock(file *entity.File, block []string) *entity.History {
 	commit := strings.Fields(block[0])[0]
 	if b.committer {

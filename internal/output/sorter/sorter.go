@@ -8,14 +8,17 @@ import (
 	"github.com/mhgffqwoer/git-fame/internal/output/sorter/sort_types"
 )
 
+// SortType defines the interface for sorting data.
 type SortType interface {
 	Compare(a, b *metrics.Data) bool
 }
 
+// Sorter represents a sorter for sorting data.
 type Sorter struct {
 	sortType SortType
 }
 
+// NewSorter creates a new Sorter instance based on the provided format type.
 func NewSorter(formatType string) (*Sorter, error) {
 	switch formatType {
 	case "lines":
@@ -35,6 +38,7 @@ func NewSorter(formatType string) (*Sorter, error) {
 	}
 }
 
+// Sort sorts the provided list of data based on the configured sort type.
 func (f *Sorter) Sort(list []*metrics.Data) {
 	sort.SliceStable(list, func(i, j int) bool {
 		return f.sortType.Compare(list[i], list[j])

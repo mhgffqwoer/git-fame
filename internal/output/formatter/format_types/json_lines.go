@@ -7,12 +7,15 @@ import (
 	metrics "github.com/mhgffqwoer/git-fame/internal/metrics"
 )
 
+// JSONLinesFormatType renders data in JSON lines format.
 type JSONLinesFormatType struct{}
 
+// NewJSONLinesFormatType creates a new JSONLinesFormatType instance.
 func NewJSONLinesFormatType() *JSONLinesFormatType {
 	return &JSONLinesFormatType{}
 }
 
+// Render renders data in JSON lines format.
 func (t *JSONLinesFormatType) Render(data []*metrics.Data) (string, error) {
 	type outData struct {
 		Name    string `json:"name"`

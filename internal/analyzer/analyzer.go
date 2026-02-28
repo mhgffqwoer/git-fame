@@ -1,3 +1,5 @@
+// Package analyzer implements the core logic for repository analysis.
+// It uses a pipeline pattern with channels to process files and their history concurrently.
 package analyzer
 
 import (
@@ -9,23 +11,28 @@ import (
 	metrics "github.com/mhgffqwoer/git-fame/internal/metrics"
 )
 
+// FileStreamer defines the interface for retrieving a stream of all files in a repository.
 type FileStreamer interface {
 	StreamFiles(ctx context.Context) (<-chan *entity.File, <-chan error)
 }
 
+// FileHistoryStreamer defines the interface for obtaining authorship history (blame) for a specific file.
 type FileHistoryStreamer interface {
 	StreamHistory(ctx context.Context, file *entity.File) (<-chan *entity.History, <-chan error)
 }
 
+// FileFilter defines the interface for deciding whether a file should be analyzed.
 type FileFilter interface {
 	Allow(file *entity.File) bool
 }
 
+// Storage defines the interface for accumulating analysis results and generating final metrics.
 type Storage interface {
 	Save(history *entity.History)
 	Result() []*metrics.Data
 }
 
+// Analyzer orchestrates the analysis process by connecting streamers, filters, and storage.
 type Analyzer struct {
 	fileStreamer FileStreamer
 	blameReader  FileHistoryStreamer
@@ -33,6 +40,7 @@ type Analyzer struct {
 	storage      Storage
 }
 
+// NewAnalyzer creates a new Analyzer instance with required dependencies.
 func NewAnalyzer(fileStreamer FileStreamer, blameReader FileHistoryStreamer, filter FileFilter, storage Storage) *Analyzer {
 	return &Analyzer{
 		fileStreamer: fileStreamer,
@@ -42,10 +50,12 @@ func NewAnalyzer(fileStreamer FileStreamer, blameReader FileHistoryStreamer, fil
 	}
 }
 
+// runFileStreamer retrieves a stream of all files in the repository.
 func (a *Analyzer) runFileStreamer(ctx context.Context) (files <-chan *entity.File, errs <-chan error) {
 	return a.fileStreamer.StreamFiles(ctx)
 }
 
+// runBlameReader retrieves the authorship history (blame) for each file.
 func (a *Analyzer) runBlameReader(ctx context.Context, fileCh <-chan *entity.File) (histories <-chan *entity.History, errs <-chan error) {
 	lineCh := make(chan *entity.History)
 	errCh := make(chan error, 1)
@@ -67,6 +77,7 @@ func (a *Analyzer) runBlameReader(ctx context.Context, fileCh <-chan *entity.Fil
 	return lineCh, errCh
 }
 
+// processBlameFile processes the authorship history (blame) for a single file.
 func (a *Analyzer) processBlameFile(ctx context.Context, file *entity.File, lineCh chan<- *entity.History, errCh chan<- error) {
 	fLineCh, fErrCh := a.blameReader.StreamHistory(ctx, file)
 
@@ -91,6 +102,7 @@ func (a *Analyzer) processBlameFile(ctx context.Context, file *entity.File, line
 	}
 }
 
+// saveInfos accumulates analysis results in the storage.
 func (a *Analyzer) saveInfos(ctx context.Context, blameLine <-chan *entity.History) <-chan struct{} {
 	done := make(chan struct{})
 	go func() {
@@ -110,6 +122,7 @@ func (a *Analyzer) saveInfos(ctx context.Context, blameLine <-chan *entity.Histo
 	return done
 }
 
+// runFileFilter filters out files that should not be analyzed.
 func (a *Analyzer) runFileFilter(ctx context.Context, fileCh <-chan *entity.File) (files <-chan *entity.File, errs <-chan error) {
 	fileChOut := make(chan *entity.File)
 	errCh := make(chan error, 1)
@@ -132,6 +145,7 @@ func (a *Analyzer) runFileFilter(ctx context.Context, fileCh <-chan *entity.File
 	return fileChOut, errCh
 }
 
+// mergeErrors merges multiple error channels into a single channel.
 func mergeErrors(errorChannels ...<-chan error) <-chan error {
 	merged := make(chan error, 1)
 	if len(errorChannels) == 0 {
@@ -158,6 +172,8 @@ func mergeErrors(errorChannels ...<-chan error) <-chan error {
 	return merged
 }
 
+// Analyze starts the analysis process.
+// It orchestrates the entire flow: streaming files, filtering them, retrieving blame history, and saving results.
 func (a *Analyzer) Analyze(ctx context.Context) ([]*metrics.Data, error) {
 	fileCh, fileErrCh := a.runFileStreamer(ctx)
 	filterCh, filterErrCh := a.runFileFilter(ctx, fileCh)

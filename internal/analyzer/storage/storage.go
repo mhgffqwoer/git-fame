@@ -7,16 +7,19 @@ import (
 	"github.com/mhgffqwoer/git-fame/internal/metrics"
 )
 
+// Storage accumulates analysis results and generates final metrics.
 type Storage struct {
 	m sync.Map
 }
 
+// NewStorage creates a new Storage instance.
 func NewStorage() *Storage {
 	return &Storage{
 		m: sync.Map{},
 	}
 }
 
+// Save accumulates analysis results in the storage.
 func (s *Storage) Save(history *entity.History) {
 	userinfo := metrics.NewData(history.Name)
 	if load, ok := s.m.Load(history.Name); ok {

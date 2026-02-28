@@ -5,11 +5,13 @@ import (
 	"os/exec"
 )
 
+// GitClient represents a Git client.
 type GitClient struct {
 	absPath string
 	commit  string
 }
 
+// newGitClient creates a new GitClient.
 func newGitClient(path, commit string) *GitClient {
 	return &GitClient{
 		absPath: path,
@@ -17,6 +19,7 @@ func newGitClient(path, commit string) *GitClient {
 	}
 }
 
+// ListFiles lists all files in the repository.
 func (g *GitClient) ListFiles() ([]byte, error) {
 	checkCmd := exec.Command("git", "rev-parse", "--verify", "HEAD")
 	checkCmd.Dir = g.absPath
@@ -33,6 +36,7 @@ func (g *GitClient) ListFiles() ([]byte, error) {
 	return cmd.Output()
 }
 
+// FileHistory returns the history of a file.
 func (g *GitClient) FileHistory(path string) ([]byte, error) {
 	cmd := exec.Command("git", "blame", "--line-porcelain")
 	cmd.Args = append(cmd.Args, g.commit, "--", path)
@@ -45,6 +49,7 @@ func (g *GitClient) FileHistory(path string) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
+// FileLastInfo returns the last commit info of a file.
 func (g *GitClient) FileLastInfo(path string) ([]byte, error) {
 	cmd := exec.Command("git", "log", "--pretty=format:commit %H%nauthor %an")
 	cmd.Args = append(cmd.Args, g.commit, "--", path)

@@ -8,12 +8,15 @@ import (
 	metrics "github.com/mhgffqwoer/git-fame/internal/metrics"
 )
 
+// CSVFormatType renders data in CSV format.
 type CSVFormatType struct{}
 
+// NewCSVFormatType creates a new CSVFormatType instance.
 func NewCSVFormatType() *CSVFormatType {
 	return &CSVFormatType{}
 }
 
+// Render renders data in CSV format.
 func (t *CSVFormatType) Render(data []*metrics.Data) (string, error) {
 	var buf bytes.Buffer
 	writer := csv.NewWriter(&buf)

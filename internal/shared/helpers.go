@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// ToAbsolutePath returns the absolute path to the given path.
 func ToAbsolutePath(path string) (string, error) {
 	if path == "" {
 		return "", nil
@@ -24,6 +25,7 @@ func ToAbsolutePath(path string) (string, error) {
 	return abs, nil
 }
 
+// SplitIntoBlocks splits a slice of strings into blocks of a specified size.
 func SplitIntoBlocks(lines []string, blockSize int) [][]string {
 	if len(lines) == 0 {
 		return nil
@@ -42,6 +44,7 @@ func SplitIntoBlocks(lines []string, blockSize int) [][]string {
 	return blocks[:len(blocks)-1]
 }
 
+// RemoveLinesStartingWith removes lines that start with any of the specified prefixes.
 func RemoveLinesStartingWith(lines []string, words ...string) []string {
 	result := make([]string, 0, len(lines))
 	for _, line := range lines {

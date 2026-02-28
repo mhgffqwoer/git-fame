@@ -8,12 +8,15 @@ import (
 	metrics "github.com/mhgffqwoer/git-fame/internal/metrics"
 )
 
+// TabularFormatType renders data in tabular format.
 type TabularFormatType struct{}
 
+// NewTabularFormatType creates a new TabularFormatType instance.
 func NewTabularFormatType() *TabularFormatType {
 	return &TabularFormatType{}
 }
 
+// Render renders data in tabular format.
 func (t *TabularFormatType) Render(data []*metrics.Data) (string, error) {
 	var b strings.Builder
 	writer := tabwriter.NewWriter(&b, 0, 0, 1, ' ', 0)

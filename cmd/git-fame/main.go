@@ -16,6 +16,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// main initializes the CLI application, sets up the available flags,
+// and executes the root command.
 func main() {
 	rootCmd := &cobra.Command{
 		Use:   "git-fame",
@@ -24,6 +26,7 @@ func main() {
 		RunE:  runRoot,
 	}
 
+	// Flag definitions for customizing the analysis and output.
 	rootCmd.Flags().String("repository", ".", "path to the git repository (default is current directory)")
 	rootCmd.Flags().String("revision", "HEAD", "revision pointer (default is HEAD)")
 	rootCmd.Flags().String("order-by", "lines", "sort order (lines|files|commits)")
@@ -34,15 +37,20 @@ func main() {
 	rootCmd.Flags().String("exclude", "", "set of glob patterns to exclude files (e.g., 'foo/*,bar/*')")
 	rootCmd.Flags().String("restrict-to", "", "set of glob patterns; exclude all files that do not match at least one pattern")
 
+	// Execute the command and handle fatal startup errors.
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
+// runRoot implements the core logic for the root command.
+// It orchestrates the entire flow: parsing flags, initializing the git client and filters,
+// running the analyzer, and finally sorting and formatting the output.
 func runRoot(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
 
+	// Extract flag values.
 	repoPath, _ := cmd.Flags().GetString("repository")
 	commit, _ := cmd.Flags().GetString("revision")
 	orderBy, _ := cmd.Flags().GetString("order-by")
@@ -53,10 +61,13 @@ func runRoot(cmd *cobra.Command, args []string) error {
 	exclude, _ := cmd.Flags().GetString("exclude")
 	restrictTo, _ := cmd.Flags().GetString("restrict-to")
 
+	// Initialize the Git client to interact with the repository at a specific revision.
 	gitClient, err := git_client.NewBuilder().WithPath(repoPath).WithCommit(commit).Build()
 	if err != nil {
 		return err
 	}
+
+	// Build the file filter based on extensions, languages, and glob patterns.
 	f, err := filter.NewFileFilterBuilder().
 		WithExtensions(extensions).
 		WithLanguages(languages).
@@ -66,22 +77,29 @@ func runRoot(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	// Set up the Analyzer with necessary dependencies for data streaming and storage.
 	analyzer := analysis_app.NewAnalyzer(
 		git_adapters.NewFileStreamer(gitClient),
 		git_adapters.NewFileHistoryStreamer(gitClient, useCommitter),
 		f,
 		storage.NewStorage(),
 	)
+
+	// Perform the analysis (running git blame on filtered files).
 	data, err := analyzer.Analyze(ctx)
 	if err != nil {
 		return err
 	}
 
+	// Initialize the sorter and order the results based on the chosen metric.
 	s, err := sorter.NewSorter(orderBy)
 	if err != nil {
 		return err
 	}
 	s.Sort(data)
+
+	// Initialize the formatter and generate the final output string.
 	fmtr, err := formatter.NewFormatter(formatType)
 	if err != nil {
 		return err
@@ -90,6 +108,8 @@ func runRoot(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	// Print the final report to standard output.
 	fmt.Print(result)
 	return nil
 }
