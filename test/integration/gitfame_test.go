@@ -34,7 +34,6 @@ func TestMain(m *testing.M) {
 
 	binaryPath = filepath.Join(tmpDir, "gitfame")
 
-	// На Windows добавим расширение .exe
 	if runtime.GOOS == "windows" {
 		binaryPath += ".exe"
 	}
