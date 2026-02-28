@@ -21,7 +21,14 @@ func (g *GitClient) ListFiles() ([]byte, error) {
 	cmd := exec.Command("git", "ls-tree", "-r", "--name-only")
 	cmd.Args = append(cmd.Args, g.commit)
 	cmd.Dir = g.absPath
-	return cmd.Output()
+	out, err := cmd.Output()
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 128 {
+			return []byte{}, nil
+		}
+		return nil, err
+	}
+	return out, nil
 }
 
 func (g *GitClient) FileHistory(path string) ([]byte, error) {
