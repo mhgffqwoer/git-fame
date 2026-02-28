@@ -43,4 +43,4 @@ jobs:
               run: go test -v ./...
 
             - name: Build
-              run: go build -v ./cmd/gitfame
+              run: go build -v ./cmd/git-fame
