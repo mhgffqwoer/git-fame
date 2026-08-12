@@ -20,7 +20,8 @@ func NewTabularFormatType() *TabularFormatType {
 func (t *TabularFormatType) Render(data []*metrics.Data) (string, error) {
 	var b strings.Builder
 	writer := tabwriter.NewWriter(&b, 0, 0, 1, ' ', 0)
-	if _, err := writer.Write([]byte("Name\tLines\tCommits\tFiles\n")); err != nil {
+	_, err := writer.Write([]byte("Name\tLines\tCommits\tFiles\n"))
+	if err != nil {
 		return "", err
 	}
 	for _, d := range data {

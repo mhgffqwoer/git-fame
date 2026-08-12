@@ -20,7 +20,8 @@ func NewCSVFormatType() *CSVFormatType {
 func (t *CSVFormatType) Render(data []*metrics.Data) (string, error) {
 	var buf bytes.Buffer
 	writer := csv.NewWriter(&buf)
-	if err := writer.Write([]string{"Name", "Lines", "Commits", "Files"}); err != nil {
+	err := writer.Write([]string{"Name", "Lines", "Commits", "Files"})
+	if err != nil {
 		return "", err
 	}
 	for _, d := range data {

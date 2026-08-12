@@ -3,44 +3,44 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-    lint:
-        name: Lint
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Setup Go
-              uses: actions/setup-go@v5
-              with:
-                  go-version: "1.26"
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
 
-            - name: Run golangci-lint
-              uses: golangci/golangci-lint-action@v7
-              with:
-                  version: v2.10.1
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.10.1
 
-    test:
-        name: Test & Build
-        needs: lint
-        strategy:
-            matrix:
-                os: [ubuntu-latest, macos-latest]
-        runs-on: ${{ matrix.os }}
+  test:
+    name: Test & Build
+    needs: lint
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
 
-        steps:
-            - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Set up Go
-              uses: actions/setup-go@v5
-              with:
-                  go-version: "1.26"
-                  cache: true
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache: true
 
-            - name: Install dependencies
-              run: go mod download
+      - name: Install dependencies
+        run: go mod download
 
-            - name: Run Tests
-              run: go test -v ./...
+      - name: Run Tests
+        run: go test -v ./...
 
-            - name: Build
-              run: go build -v ./cmd/git-fame
+      - name: Build
+        run: go build -v ./cmd/git-fame
