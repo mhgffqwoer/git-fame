@@ -1,89 +1,54 @@
-# Git Fame Analyzer
+# git-fame
 
-A Go-based command-line utility for detailed analysis of author contributions to a git repository. The program calculates the number of lines, commits, and affected files for each participant at a specific point in the project's history.
+Считает, сколько строк, коммитов и файлов приходится на каждого автора в git-репозитории. Строки привязываются к авторам через `git blame`, поэтому цифры показывают состояние кода на выбранной ревизии, а не всю историю.
 
-## Description
+## Установка
 
-`git-fame` is a command-line tool that helps visualize the "fame" of developers. The utility scans repository files, matches each line of code to the last commit that changed it via `git blame`, and aggregates data by authors or committers.
+Нужны Go 1.26+ и `git` в `PATH`.
 
-**Features:**
-
-* **Flexible filtering**: Restrict analysis by file extensions (`.go`, `.md`), programming languages, or specific paths.
-* **Exclusion support**: Use Glob patterns to ignore folders (e.g., `vendor/*`) or specific files.
-* **Variety of formats**: Output results as a readable table (tabular), CSV, JSON, or JSON-lines for subsequent automated processing.
-* **High accuracy**: Accounts for the repository state at any specified revision (SHA-1, branch, tag).
-* **Sorting**: Ability to rank authors by the number of lines, commits, or files.
-
-## Usage
-
-### Basic Commands
-
-```bash
-# Basic run in the current repository (default tabular output)
-gitfame
-
-# Analyze only Go and Markdown files, sort by number of commits
-gitfame --extensions='.go,.md' --order-by=commits
-
-# Output in JSON format for integration with other utilities
-gitfame --format=json --exclude='vendor/**,**/*_test.go'
-```
-
-### Flag Reference
-
-| Flag | Default Value | Description |
-| --- | --- | --- |
-| `--repository` | `.` | Path to the Git repository. |
-| `--revision` | `HEAD` | Pointer to a commit (branch, hash, or tag). |
-| `--order-by` | `lines` | Sorting key: `lines`, `commits`, or `files`. |
-| `--format` | `tabular` | Output format: `tabular`, `csv`, `json`, `json-lines`. |
-| `--extensions` |  | List of extensions separated by commas (e.g., `.go,.js`). |
-| `--languages` |  | List of languages (e.g., `go,python`). |
-| `--use-committer` | `false` | Use committer instead of author. |
-
-## Installation
-
-```bash
+```sh
 git clone https://github.com/mhgffqwoer/git-fame.git
 cd git-fame
-go install ./cmd/gitfame
-
+go install ./cmd/git-fame
 ```
 
-## How It Works
+## Запуск
 
-The analysis process is divided into several stages:
+```sh
+git-fame
+git-fame --repository ../other-repo --revision v1.2.0
+git-fame --extensions .go,.md --order-by commits
+git-fame --languages go --exclude 'vendor/*,*_test.go' --format json
+```
 
-1. **File Collection**: Using `git ls-tree`, a list of files relevant to the specified revision is formed.
-2. **Filtering**: User filters for extensions, languages, and Glob patterns are applied.
-3. **Blame Analysis**: For each file that passes the filter, `git blame --porcelain` is called. This format effectively groups adjacent lines from the same commit.
-4. **Aggregation**: The program matches commit data with authors (or committers when the `--use-committer` flag is used) and accumulates three metrics:
-* **Lines**: Total number of lines belonging to the author.
-* **Commits**: Number of unique commits by the author in the selected subset of files.
-* **Files**: Number of unique files to which the author contributed changes.
+| Флаг | По умолчанию | |
+| --- | --- | --- |
+| `--repository` | `.` | путь к репозиторию |
+| `--revision` | `HEAD` | коммит, ветка или тег |
+| `--order-by` | `lines` | `lines`, `commits` или `files` |
+| `--use-committer` | `false` | считать коммитеров вместо авторов |
+| `--format` | `tabular` | `tabular`, `csv`, `json` или `json-lines` |
+| `--extensions` | | только эти расширения, например `.go,.md` |
+| `--languages` | | только эти языки, например `go,markdown` |
+| `--exclude` | | пропустить файлы, подходящие под любой из glob-паттернов |
+| `--restrict-to` | | оставить только файлы, подходящие хотя бы под один glob-паттерн |
 
-## Project Structure
+Соответствие языков и расширений лежит в `configs/language_extensions.json`.
 
-```text
-/ (root)
-├─ cmd/
-│  └─ gitfame/              # Main entry point
-│     └─ main.go            # CLI argument parsing and analyzer initialization
-├─ configs/
-│  ├─ embed.go              # Mechanism for embedding static files
-│  └─ language_extensions.json # Mapping of extensions to languages
-├─ internal/
-│  ├─ analyzer/             # Analysis system core
-│  │  ├─ entities/          # Data models (files, history)
-│  │  ├─ filter/            # File filtering logic (Glob, extensions)
-│  │  ├─ git_adapters/      # Adapters for streaming reads from Git (blame, ls-tree)
-│  │  └─ storage/           # Temporary storage for intermediate results
-│  ├─ git_client/           # Low-level wrapper over Git commands
-│  ├─ metrics/              # Structures for counting lines, commits, and files
-│  ├─ output/               # Result generation module
-│  │  ├─ formatter/         # Formatting: CSV, JSON, Tabular
-│  │  └─ sorter/            # Sorting logic by keys (lines, commits, files)
-│  └─ shared/               # General utility functions
-└─ test/
-   └─ integration/          # Integration tests on real git bundles
+## Как считается
+
+Список файлов берется из `git ls-tree` на нужной ревизии, проходит через фильтры, и по каждому файлу запускается `git blame --porcelain`. Для каждого автора считаются:
+
+- строки - строки, которые он менял последним;
+- коммиты - разные коммиты, к которым относятся эти строки;
+- файлы - файлы, где есть хотя бы одна его строка.
+
+У пустых файлов blame ничего не возвращает, поэтому они засчитываются автору последнего коммита, который их трогал.
+
+## Тесты
+
+Интеграционные тесты собирают бинарник и гоняют его на git-бандлах из `test/integration/testdata`:
+
+```sh
+go test ./...
 ```
